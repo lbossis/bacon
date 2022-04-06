@@ -42,11 +42,11 @@ import java.util.Map;
 public class AddOnFactory {
 
     public static List<AddOn> listAddOns(
-        PigConfiguration pigConfiguration,
-        Map<String, PncBuild> builds,
-        String releasePath,
-        String extrasPath,
-        Deliverables deliverables) {
+            PigConfiguration pigConfiguration,
+            Map<String, PncBuild> builds,
+            String releasePath,
+            String extrasPath,
+            Deliverables deliverables) {
         ArrayList<AddOn> resultList = new ArrayList<>();
 
         resultList.add(new RuntimeDependenciesAnalyzer(pigConfiguration, builds, releasePath, extrasPath));
@@ -55,7 +55,7 @@ public class AddOnFactory {
         resultList.add(new RuntimeDependenciesToAlignTree(pigConfiguration, builds, releasePath, extrasPath));
         resultList.add(new NotYetAlignedFromDependencyTree(pigConfiguration, builds, releasePath, extrasPath));
         resultList
-            .add(new QuarkusCommunityDepAnalyzer(pigConfiguration, builds, releasePath, extrasPath, deliverables));
+                .add(new QuarkusCommunityDepAnalyzer(pigConfiguration, builds, releasePath, extrasPath, deliverables));
         resultList.add(new MicroProfileSmallRyeCommunityDepAnalyzer(pigConfiguration, builds, releasePath, extrasPath));
         resultList.add(new QuarkusPostBuildAnalyzer(pigConfiguration, builds, releasePath, extrasPath));
         resultList.add(new OfflineManifestGenerator(pigConfiguration, builds, releasePath, extrasPath));

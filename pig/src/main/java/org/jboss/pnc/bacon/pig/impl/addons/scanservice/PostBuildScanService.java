@@ -15,10 +15,10 @@ public class PostBuildScanService extends AddOn {
     private static final Logger log = LoggerFactory.getLogger(PostBuildScanService.class);
 
     public PostBuildScanService(
-        PigConfiguration pigConfiguration,
-        Map<String, PncBuild> builds,
-        String releasePath,
-        String extrasPath) {
+            PigConfiguration pigConfiguration,
+            Map<String, PncBuild> builds,
+            String releasePath,
+            String extrasPath) {
         super(pigConfiguration, builds, releasePath, extrasPath);
     }
 
