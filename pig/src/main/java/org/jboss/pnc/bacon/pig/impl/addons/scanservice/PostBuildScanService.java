@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -38,15 +37,15 @@ public class PostBuildScanService extends AddOn {
         log.info("releasePath: {}", releasePath);
         log.info("extrasPath: {}", extrasPath);
 
-        ScanConfigUtil cfg = new ScanConfigUtil(JSON_CFG_PATH);
-        cfg.showCfgMap();
-        cfg.showIndividualFields();
+        PostBuildScanSkeleton scanSkeleton = new PostBuildScanSkeleton(JSON_CFG_PATH);
+        scanSkeleton.showCfgMap();
+        scanSkeleton.showIndividualFields();
 
         List<String> toRun = new ArrayList<>();
-        toRun.add(cfg.getScript());
-        toRun.add(cfg.getScmUrl());
-        toRun.add(cfg.getLogFile());
-        toRun.add(cfg.getOutput());
+        toRun.add(scanSkeleton.getScript());
+        toRun.add(scanSkeleton.getScmUrl());
+        toRun.add(scanSkeleton.getLogFile());
+        toRun.add(scanSkeleton.getOutput());
         runTrigger(toRun);
     }
 
@@ -61,14 +60,10 @@ public class PostBuildScanService extends AddOn {
             while ((line = reader.readLine()) != null) {
                 log.info(line);
             }
+            process.waitFor(300, TimeUnit.SECONDS);
             reader.close();
-            try {
-                process.waitFor(300, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
