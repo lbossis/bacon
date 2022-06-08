@@ -167,15 +167,14 @@ The command to generate the YAML output is:
 $ bacon pig export build-config <build-config-id>
 ```
 
+### Post Build Product Security Scanning as a Service (PSSaaS)
 
-### Post Build Scan Service
-
-PSSaaS = Product Security Scanning as a Service
------------------------------------------------
 The `postBuildScanService` addon provides a way to trigger scan for successfully finished builds. Currently PSSaaS supports three cases:
-   . PNC build
-   . Brew build
-   . scmURLs of product which is not productized (not built in PNC or Brew) 
+```
+PNC build
+Brew build
+scmURLs of product which is not productized (not built in PNC or Brew)
+```
 
 The following command relies on mandatory configuration parameters to be defined directly in the build-config.yaml file (otherwise, bacon addons run will fail due to lack of mandatory parameter). Optional parameters may or may not be defined. Such an approach is impractical due to exposure of sensitive information.
 ```
@@ -193,16 +192,17 @@ bacon pig run --skipBuilds --skipJavadoc --skipLicenses --skipSharedContent --sk
 --verbose .
 ```
 Make sure all involved environment variables have been defined before running the above command.
+```
 export scan_service_url=<token1>
 export scan_service_secret_key=<token2>
 export scan_service_secret_value=<token3>
-
+```
 Use parameters passed via '-e' bacon CLI option inside the build-config.yaml file:
-...
-  serviceUrl: {{ pssaas_scan_service_url }}
-  serviceSecretKey: {{ pssaas_secret_key }}
-  serviceSecretValue: {{ pssaas_secret_value }}
-...
+```
+serviceUrl: {{ pssaas_scan_service_url }}
+serviceSecretKey: {{ pssaas_secret_key }}
+serviceSecretValue: {{ pssaas_secret_value }}
+```
 
 Sensitive information does not leak anymore. What has changed? Suppliying parameters via command line option '-e' protects sensitive information by hiding actual values in the environment variables. This technique can be used to conceal secret parameter values and assign them to so-called 'bridge' variables which are passed-in to the build-config.yaml where they get interpreted and assigned to the ultimate addon configuration parameters (in the above example - serviceUrl, serviceSecretKey, serviceSecretValue).
 
