@@ -171,31 +171,56 @@ addons:
 ### Post Build Product Security Scanning as a Service (PSSaaS)
 {% raw %}
 
-### Build Configuration Export
-PiG allows you to export an existing build-configuration into YAML format that can then be included into the builds section in a `build-config.yaml`.
+The `postBuildScanService` addon provides a way to trigger code scans for builds within the PiG context (successful builds in the current `build-config.yaml`), as well as on brew builds and git repositories using the PSSaaS service.
 
-The command to generate the YAML output is:
 ```
-$ bacon pig export build-config <build-config-id>
-```
-
-### Post Build Product Security Scanning as a Service (PSSaaS)
-
-The `postBuildScanService` addon provides a way to trigger scan for successfully finished builds. Currently PSSaaS supports three cases:
-```
-PNC build
-Brew build
-scmURLs of product which is not productized (not built in PNC or Brew)
+addons:
+  postBuildScanService:
+    productID: 2151 #Defined in product pages (String)
+    serviceUrl: {{ pssaas_scan_service_url }} #URI of the PSSaaS service
+    serviceSecretKey: {{ pssaas_secret_key }} #The key for the PSSaaS service
+    serviceSecretValue: {{ pssaas_secret_value }} #The token for the PSSaaS service
 ```
 
-The following command relies on mandatory configuration parameters to be defined directly in the build-config.yaml file (otherwise, bacon addons run will fail due to lack of mandatory parameter). Optional parameters may or may not be defined. Such an approach is impractical due to exposure of sensitive information.
+Currently PSSaaS supports three use cases:
+
+##### PNC build
+
+Passes PNC build ID (String) to the scan service, the repository and revision associated with the build will be checked out and scanned. By default this will be successful builds within the current PiG context and no further addon configuration is required as shown above.
+
+##### Brew build
+
+Passes brew/koji build ID (Integer) to the scan service, The repository and revision will be checked out and scanned,
+the brew builds currently need to be manually specified in the addon configuration.
+
+```
+brewBuilds:
+    - 1000
+    - 2000
+```
+
+##### SCM URL and Revision
+
+The repository and revision of product which is not productized (not built in PNC or Brew), this will be checked out
+verbatim and scanned, repositories need to be specified in the addon configuration.
+
+```
+extraScmUrls:
+      - scmUrl: https://github.com/randomurl
+        scmRevision: 10.0.0
+      - scmUrl: https://github.com/anotherrandomurl
+        scmRevision: foobar
+```
+
+
+The following command relies on mandatory configuration parameters to be defined directly in the `build-config.yaml` file (otherwise, the bacon addons run will fail due to lack of mandatory parameters).
 ```
 bacon pig run --skipBuilds --skipJavadoc --skipLicenses --skipPncUpdate --skipSharedContent --skipSources --verbose .
 ```
 
-Hiding Sensitive Information
-----------------------------
-In order to protect sensitive information from being exposed invoke bacon command the following way:
+#### Hiding Sensitive Information
+
+In order to avoid any sensitive information from being exposed or checked into SCM, we'd recommend you invoke bacon command the following way:
 ```
 bacon pig run --skipBuilds --skipJavadoc --skipLicenses --skipSharedContent --skipSources \
 -e pssaas_scan_service_url=${scan_service_url}                                            \
@@ -216,28 +241,21 @@ serviceSecretKey: {{ pssaas_secret_key }}
 serviceSecretValue: {{ pssaas_secret_value }}
 ```
 
-Sensitive information does not leak anymore. What has changed? Suppliying parameters via command line option '-e' protects sensitive information by hiding actual values in the environment variables. This technique can be used to conceal secret parameter values and assign them to so-called 'bridge' variables which are passed-in to the build-config.yaml where they get interpreted and assigned to the ultimate addon configuration parameters (in the above example - serviceUrl, serviceSecretKey, serviceSecretValue).
+Using environment variables means build-configurations can be shared easily. Supplying parameters via command line option '-e' protects sensitive information by hiding actual values in the environment variables. This technique can be used to conceal secret parameter values and assign them to so-called 'bridge' variables which are passed-in to the build-config.yaml where they get interpreted and assigned to the ultimate addon configuration parameters (in the above example - serviceUrl, serviceSecretKey, serviceSecretValue).
 
-There is no need to do the same for non-sensitive parameters like productID, eventID, etc. They can be defined directly in the build-config.yaml (see examples below).
+There is no need to do the same for non-sensitive parameters such as productID, eventID, etc. They can be defined directly in the build-config.yaml (see examples below).
 
-Example 1: Brew build scan 
+_Example 1: Default scan (Successful builds in the PiG context)_
 ```
 addons:
   postBuildScanService:
     productID: 2151
-    eventId: 1
-    isManagedService: True
-    cpaasVersion: 99.0.0
-    jobUrl: https://somejenkinspipeline.com/run999
     serviceUrl: {{ pssaas_scan_service_url }}
     serviceSecretKey: {{ pssaas_secret_key }}
     serviceSecretValue: {{ pssaas_secret_value }}
-    brewBuilds:
-      - 1000
-      - 2000
 ```
-      
-Example 2: scmURLs based scan
+
+_Example 2: PNC, Brew and SCMURL based scans and other values supported_
 ```
 addons:
   postBuildScanService:
@@ -254,11 +272,23 @@ addons:
         scmRevision: 10.0.0
       - scmUrl: https://github.com/anotherrandomurl
         scmRevision: foobar
+    brewBuilds:
+      - 1000
+      - 2000
 ```
 
-Using Defaults
---------------
+#### Using Defaults
 To use default value for an optional parameter leave that parameter undefined in the addons section of your build-config.yaml file.
 
 {% endraw %}
+
+## PiG Export Feature
+
+### Build Configuration Export
+PiG allows you to export an existing build-configuration into YAML format that can then be included into the builds section in a `build-config.yaml`.
+
+The command to generate the YAML output is:
+```
+$ bacon pig export build-config <build-config-id>
+```
 
