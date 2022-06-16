@@ -168,7 +168,8 @@ addons:
           suffix: 'nodejs-adapter-dist.zip'
 ```
 
-## PiG Export Feature
+### Post Build Product Security Scanning as a Service (PSSaaS)
+{% raw %}
 
 ### Build Configuration Export
 PiG allows you to export an existing build-configuration into YAML format that can then be included into the builds section in a `build-config.yaml`.
@@ -258,3 +259,6 @@ addons:
 Using Defaults
 --------------
 To use default value for an optional parameter leave that parameter undefined in the addons section of your build-config.yaml file.
+
+{% endraw %}
+
